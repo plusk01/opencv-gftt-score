@@ -15,8 +15,8 @@ find_package(OpenCV 3 REQUIRED)
 message(STATUS "OpenCV Version: " ${OpenCV_VERSION})
 
 # Include header files
-include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(include ${OpenCV_INCLUDE_DIRS})
 
 # Create the executables and link them to libs
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp src/cvmodified.cpp)
 target_link_libraries(main ${OpenCV_LIBS})

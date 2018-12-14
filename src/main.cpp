@@ -5,9 +5,10 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "cvmodified.h"
 
 // flag to determine which GFTT to use
-constexpr bool useModifiedCV = false;
+constexpr bool useModifiedCV = true;
 
 // EuRoC MH_01_easy image from cam0
 constexpr char imgFile[] = "../res/1403636641013555456.png";
@@ -29,7 +30,10 @@ int main(int argc, char const *argv[])
   std::vector<float> scores;
   
   if (useModifiedCV) {
-    
+    cvmodified::goodFeaturesToTrack(grey, corners, maxCorners, qualityLevel, minDist);
+
+    // we don't have score info
+    scores.resize(corners.size(), 1.0);
   } else {
     cv::goodFeaturesToTrack(grey, corners, maxCorners, qualityLevel, minDist);
 
