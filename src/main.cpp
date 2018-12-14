@@ -5,6 +5,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "tictoc.h"
 #include "cvmodified.h"
 
 // flag to determine which GFTT to use
@@ -18,7 +19,7 @@ int main(int argc, char const *argv[])
   cv::Mat img = cv::imread(imgFile, cv::IMREAD_COLOR);
 
   /// GFTT Parameters
-  constexpr int maxCorners = 100;
+  constexpr int maxCorners = 500;
   constexpr double qualityLevel = 0.001;
   constexpr double minDist = 30;
 
@@ -29,11 +30,9 @@ int main(int argc, char const *argv[])
   std::vector<cv::Point2f> corners;
   std::vector<float> scores;
   
+  TicToc t_detect;
   if (useModifiedCV) {
-    cvmodified::goodFeaturesToTrack(grey, corners, maxCorners, qualityLevel, minDist);
-
-    // we don't have score info
-    scores.resize(corners.size(), 1.0);
+    cvmodified::goodFeaturesToTrack(grey, corners, scores, maxCorners, qualityLevel, minDist);
   } else {
     cv::goodFeaturesToTrack(grey, corners, maxCorners, qualityLevel, minDist);
 
@@ -41,11 +40,17 @@ int main(int argc, char const *argv[])
     scores.resize(corners.size(), 1.0);
   }
 
+  std::cout << "Detected " << corners.size() << " features in " << t_detect.toc() << " ms." << std::endl;
+
+  // Score statistics
+  float maxScore = *std::max_element(scores.begin(), scores.end());
+  std::cout << "Maximum feature score: " << maxScore << std::endl;
+
   // draw features
   for (size_t i=0; i<corners.size(); ++i) {
     // convenience
     auto pt = corners[i];
-    auto score = scores[i];
+    auto score = scores[i] / maxScore;
 
     // color alpha mixing
     auto color = cv::Scalar(0, 255*score, 255*(1 - score));

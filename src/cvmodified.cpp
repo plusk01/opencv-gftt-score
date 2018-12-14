@@ -63,7 +63,9 @@ struct greaterThanPtr
     { return (*a > *b) ? true : (*a < *b) ? false : (a > b); }
 };
 
-void goodFeaturesToTrack( InputArray _image, OutputArray _corners,
+// ----------------------------------------------------------------------------
+
+void goodFeaturesToTrack( InputArray _image, OutputArray _corners, OutputArray _scores,
                               int maxCorners, double qualityLevel, double minDistance,
                               InputArray _mask, int blockSize, int gradientSize,
                               bool useHarrisDetector, double harrisK )
@@ -78,6 +80,7 @@ void goodFeaturesToTrack( InputArray _image, OutputArray _corners,
     if (image.empty())
     {
         _corners.release();
+        _scores.release();
         return;
     }
 
@@ -111,11 +114,13 @@ void goodFeaturesToTrack( InputArray _image, OutputArray _corners,
     }
 
     std::vector<Point2f> corners;
+    std::vector<float> scores;
     size_t i, j, total = tmpCorners.size(), ncorners = 0;
 
     if (total == 0)
     {
         _corners.release();
+        _scores.release();
         return;
     }
 
@@ -187,6 +192,7 @@ void goodFeaturesToTrack( InputArray _image, OutputArray _corners,
                 grid[y_cell*grid_width + x_cell].push_back(Point2f((float)x, (float)y));
 
                 corners.push_back(Point2f((float)x, (float)y));
+                scores.push_back(*tmpCorners[i]);
                 ++ncorners;
 
                 if( maxCorners > 0 && (int)ncorners == maxCorners )
@@ -203,6 +209,8 @@ void goodFeaturesToTrack( InputArray _image, OutputArray _corners,
             int x = (int)((ofs - y*eig.step)/sizeof(float));
 
             corners.push_back(Point2f((float)x, (float)y));
+            scores.push_back(*tmpCorners[i]);
+
             ++ncorners;
             if( maxCorners > 0 && (int)ncorners == maxCorners )
                 break;
@@ -210,16 +218,17 @@ void goodFeaturesToTrack( InputArray _image, OutputArray _corners,
     }
 
     Mat(corners).convertTo(_corners, _corners.fixedType() ? _corners.type() : CV_32F);
+    Mat(scores).convertTo(_scores, _scores.fixedType() ? _scores.type() : CV_32F);
 }
 
 // ----------------------------------------------------------------------------
 
-void goodFeaturesToTrack( InputArray _image, OutputArray _corners,
+void goodFeaturesToTrack( InputArray _image, OutputArray _corners, OutputArray _scores,
                           int maxCorners, double qualityLevel, double minDistance,
                           InputArray _mask, int blockSize,
                           bool useHarrisDetector, double harrisK )
 {
-    cvmodified::goodFeaturesToTrack(_image, _corners, maxCorners, qualityLevel, minDistance,
+    cvmodified::goodFeaturesToTrack(_image, _corners, _scores, maxCorners, qualityLevel, minDistance,
                         _mask, blockSize, 3, useHarrisDetector, harrisK );
 }
 
