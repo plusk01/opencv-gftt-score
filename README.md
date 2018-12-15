@@ -3,7 +3,7 @@ OpenCV Good Features To Track with Scores
 
 This code returns a `std::vector<float>` of detection scores from `cv::goodFeaturesToTrack`.
 
-An interactive example is provided. Use `+`/`-` keys to choose the `n`-th greatest feature score to normalize by. Below is shown with `n=1`.
+An interactive example is provided. The color changes between green (normalized score of 1.00) and red (normalized score of 0.00). Use `+`/`-` keys to choose the `n`-th greatest feature score to normalize by. Below is shown with `n=1`.
 
 <p align="center">
 	<img src=".github/detections_n1.png" />
